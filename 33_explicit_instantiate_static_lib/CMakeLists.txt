@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.31)
+project(33_explicit_instantiate_static_lib)
+
+set(CMAKE_CXX_STANDARD 20)
+add_subdirectory(test)
+add_executable(33_explicit_instantiate_static_lib main.cpp)
+target_link_libraries(33_explicit_instantiate_static_lib test_static)

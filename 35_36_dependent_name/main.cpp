@@ -33,12 +33,43 @@ void foo(const std::vector<T>& v) {
     typedef typename std::vector<T>::const_iterator iter_t;
     iter_t * p2; //iter_t 也也是unqualified name,但已經確認是type了，因為加了typename
 }
+// 消除歧異符 template
+/* 與member的unqualified name lookup相似，若template的definition不是當前instantiate的成員不視為template，除非添加template表示*/
+template<typename T>
+struct S {
+    template<typename U>
+    void foo(){}
+};
+int T=10;
 
+//instantiate 的是bar()，不是s
+template<typename T>
+void bar() {
+    S<T> s; //這個s的instantiated object依賴當前template參數T，但他不知道s.foo 是單純function？是s.member variable? 還是member template?，
+    //如果沒有template 會解析成 s.foo(variable) < T #msvc可以過
+    s.template foo<T>();
+}
+//能加template的只有這三種operator :: -> .
+/* T::template foo<x>();
+ * s.template foo<x>();
+ * this->template foo<x>();
+ * typename T::template iterator<int>::value_type v;
+*/
+
+/* 這邊解釋一下名詞
+ * 1. dependent name(待決名) : 當你在當前的template的definition時，當你的expression 或 變數的type依賴著T這個參數或值時，就為dependent name，
+ *    而使用此dependent name時，其函式或class的抉擇，會等到實際instantiation
+ * 2. non-dependent name: 基本上沒有依賴template的function或class的member都是non-dependent name，他的定義在還沒實體化時就已經定義了，但假設發現實體化時更動的定義，編譯器也不會報錯(NDR, no diagnostic required)，
+ *   (1) incomplete -> comp
+ */
 
 int main() {
     X x;
     f(x);
-    std::vector<int> v;
-    foo(v);
+    //std::vector<int> v;
+    //foo(v);
+
+    bar<int>();
+
     return 0;
 }

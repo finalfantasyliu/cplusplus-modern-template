@@ -152,13 +152,17 @@ struct S {
     #include "vec.hpp"
     template<> struct Vec<char> { static const int id = 2; };
     ```
- ## Qualified vs Unqualified name
-| Code fragment                         | Qualified? | Reason                                                 |
-| ------------------------------------- | ---------- | ------------------------------------------------------ |
-| `Y<T>::t2` (the function name itself) | **Yes**    | Scope operator `::` precedes `t2`.                     |
-| Inside that body, the call `f();`     | **No**     | Just `f`, no `::` or `this->`.                         |
-| `this->f();`                          | **Yes**    | `this->` explicitly says “look in the object’s class”. |
-| `Base<T>::f();`                       | **Yes**    | Contains `::`.                                         |
+## Qualified vs Unqualified name
+Qualified只有三種才是qualified name，並起要在::，都是由左至右解析 A::B::C
+- class member (including static and non-static functions, types, templates, etc),
+- namespace member (including another namespace),
+- enumerator.
+| Code fragment                         | Qualified? | Reason                                                                                                                                  |
+| ------------------------------------- |------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `Y<T>::t2` (the function name itself) | **Yes**    | Scope operator `::` precedes `t2`.                                                                                                      |
+| Inside that body, the call `f();`     | **No**     | Just `f`, no `::` or `this->`.                                                                                                          |
+| `this->f();`                          | **No**     | `this->` explicitly says “look in the object’s class”.但因為不是::右邊所以不算qualified name，他只是指向基底類別，但基底類別又依賴T，所以可能變成dependent name推遲到第二階段lookup |
+| `Base<T>::f();`                       | **Yes**    | Contains `::`.                                                                                                                          |
 
 ## Two-phase lookup
 ```pqsql

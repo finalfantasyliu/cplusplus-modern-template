@@ -31,7 +31,8 @@ int main() {
     X a,b;
   auto &r= add(a,b);
     Y c;
-    auto p=&Y::value;
+    auto p = &Y::value;
+    //這種寫法是pointer to member
     c.*p=42;
     //using type=std::void_t<int,double,char, std::string>;//這個最後都是void，只是std::void_t為你SFINAE提供的工具variable
     return 0;
